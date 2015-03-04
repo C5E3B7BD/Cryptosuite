@@ -23,7 +23,11 @@ class Sha1Class : public Print
     void initHmac(const uint8_t* secret, int secretLength);
     uint8_t* result(void);
     uint8_t* resultHmac(void);
+#if defined(ARDUINO) && ARDUINO >= 100
+    virtual size_t write(uint8_t);
+#else
     virtual void write(uint8_t);
+#endif
     using Print::write;
   private:
     void pad();
@@ -36,7 +40,7 @@ class Sha1Class : public Print
     uint32_t byteCount;
     uint8_t keyBuffer[BLOCK_LENGTH];
     uint8_t innerHash[HASH_LENGTH];
-    
+
 };
 extern Sha1Class Sha1;
 

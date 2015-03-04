@@ -8,7 +8,7 @@
 #define SHA1_K40 0x8f1bbcdc
 #define SHA1_K60 0xca62c1d6
 
-uint8_t sha1InitState[] PROGMEM = {
+const uint8_t sha1InitState[] PROGMEM = {
   0x01,0x23,0x45,0x67, // H0
   0x89,0xab,0xcd,0xef, // H1
   0xfe,0xdc,0xba,0x98, // H2
@@ -72,9 +72,17 @@ void Sha1Class::addUncounted(uint8_t data) {
   }
 }
 
-void Sha1Class::write(uint8_t data) {
+#if defined(ARDUINO) && ARDUINO >= 100
+size_t
+#else
+void
+#endif
+Sha1Class::write(uint8_t data) {
   ++byteCount;
   addUncounted(data);
+#if defined(ARDUINO) && ARDUINO >= 100
+  return 1;
+#endif
 }
 
 void Sha1Class::pad() {
@@ -99,7 +107,7 @@ void Sha1Class::pad() {
 uint8_t* Sha1Class::result(void) {
   // Pad to complete the last block
   pad();
-  
+
   // Swap byte order back
   for (int i=0; i<5; i++) {
     uint32_t a,b;
@@ -110,7 +118,7 @@ uint8_t* Sha1Class::result(void) {
     b|=a>>24;
     state.w[i]=b;
   }
-  
+
   // Return pointer to hash (20 characters)
   return state.b;
 }
